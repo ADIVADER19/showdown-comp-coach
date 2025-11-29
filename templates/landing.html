@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="hero">
+    <div class="hero-content">
+        <h1>Victory Road<br>AI Coach</h1>
+        <p>Master the Meta. Build Champions.</p>
+        
+        <div style="margin-top: 30px;">
+            {% if current_user.is_authenticated %}
+                <a href="/app" class="cta-button">Enter The Arena</a>
+            {% else %}
+                <a href="/register" class="cta-button">Start Your Journey</a>
+                <div style="margin-top: 20px;">
+                    <a href="/login" style="color: white; opacity: 0.8; text-decoration: none; font-size: 0.9rem;">Existing Trainer? <span style="text-decoration: underline;">Login</span></a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

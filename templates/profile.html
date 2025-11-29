@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width: 1200px; margin: 40px auto;">
+    
+    <div class="profile-header">
+        <div>
+            <h1>{{ user.username }}</h1>
+            <p>Trainer ID: {{ user.id[-6:] }}</p>
+        </div>
+        <div>
+            <span class="badge" style="background:var(--poke-blue);">
+                {{ user.knowledge_level }}
+            </span>
+        </div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 class="section-title">PC Box (Saved Teams)</h2>
+        <span style="color:var(--text-muted); font-size:0.9rem;">{{ teams|length }} Teams Stored</span>
+    </div>
+    
+    <div class="team-grid">
+        {% for team in teams %}
+        <div class="team-card">
+            <div class="card-header">
+                <span class="team-title">{{ team.title }}</span>
+                <span class="format-badge">{{ team.format }}</span>
+            </div>
+            
+            <div class="card-body">
+                <pre class="code-block">{{ team.team_data }}</pre>
+            </div>
+
+            <div class="card-footer">
+                <span class="date-stamp">{{ team.date.strftime('%b %d, %Y') }}</span>
+                
+                <button onclick="copyToClipboard(this)" class="action-btn">
+                    <span>📋 Export Team</span>
+                </button>
+            </div>
+        </div>
+        {% else %}
+        <div style="grid-column: 1/-1; text-align: center; padding: 80px 20px; background: var(--bg-card); border-radius: 12px; border: 2px dashed var(--border-color);">
+            <div style="font-size: 3rem; margin-bottom: 10px;">📦</div>
+            <h3 style="color: var(--text-main); margin:0;">Your PC Box is empty.</h3>
+            <p style="color: var(--text-muted); margin: 10px 0 25px;">Head to the Arena to analyze a Pokemon and build your first team.</p>
+            <a href="/app" class="cta-button" style="font-size:0.9rem; padding:12px 30px;">Open Team Builder</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function copyToClipboard(btnElement) {
+        // Navigate: Button -> Footer -> Card -> Body -> Pre
+        const card = btnElement.closest('.team-card');
+        const preText = card.querySelector('.code-block').innerText;
+        
+        navigator.clipboard.writeText(preText).then(() => {
+            const span = btnElement.querySelector('span');
+            const originalText = span.innerText;
+            
+            // Visual Feedback
+            btnElement.style.background = "var(--poke-blue)";
+            btnElement.style.color = "white";
+            span.innerText = "✅ Copied!";
+            
+            setTimeout(() => {
+                span.innerText = originalText;
+                btnElement.style.background = "transparent";
+                btnElement.style.color = "var(--poke-blue)";
+            }, 2000);
+        });
+    }
+</script>
+{% endblock %}
