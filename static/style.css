@@ -209,7 +209,8 @@ a { text-decoration: none; color: inherit; transition: 0.3s; }
 /* Grid & Card */
 .team-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    /* CHANGED: reduced min-width from 400px to 300px for better responsiveness */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 25px;
     padding-bottom: 40px;
 }
@@ -273,3 +274,91 @@ a { text-decoration: none; color: inherit; transition: 0.3s; }
     transition: 0.3s; display: flex; align-items: center; gap: 8px;
 }
 .action-btn:hover { background: var(--poke-blue); color: white; box-shadow: 0 0 10px rgba(48, 167, 215, 0.4); }
+
+/* --- 9. Responsive Design (Mobile & Tablet) --- */
+
+/* Tablet and smaller (Width < 900px) */
+@media screen and (max-width: 900px) {
+    /* Shrink the Chat container width */
+    .app-container {
+        width: 95%;
+        margin: 20px auto;
+        height: 85vh;
+    }
+
+    /* Adjust Grid to prevent horizontal scrolling */
+    .team-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+}
+
+/* Mobile Devices (Width < 600px) */
+@media screen and (max-width: 600px) {
+    
+    /* 1. Navbar: Stack Logo and Links vertically */
+    .navbar {
+        flex-direction: column;
+        padding: 1rem;
+        gap: 15px;
+    }
+    .links {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    /* 2. Hero Section: Reduce massive font sizes */
+    .hero h1 {
+        font-size: 2.5rem; /* Reduced from 4.5rem */
+    }
+    .hero p {
+        font-size: 1rem; /* Reduced from 1.4rem */
+        padding: 0 20px;
+    }
+    
+    /* 3. Auth Forms: Make them full width on mobile */
+    .auth-box {
+        width: 90%;
+        padding: 20px;
+        margin: 0 auto;
+    }
+
+    /* 4. Chat Interface: Maximize screen usage */
+    .app-container {
+        margin: 10px;
+        width: auto;
+        height: 80vh; /* Adjust for mobile browser bars */
+        border-radius: 8px;
+    }
+    .message {
+        max-width: 90%; /* Messages take more width on small screens */
+        font-size: 0.95rem;
+    }
+    .input-area {
+        padding: 10px;
+    }
+    .send-btn {
+        padding: 0 15px;
+    }
+
+    /* 5. Profile Page: Stack header and cards */
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+        padding: 20px;
+    }
+    
+    /* Force cards to be 1 column on mobile */
+    .team-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    /* Prevent code blocks from breaking layout */
+    .code-block {
+        font-size: 0.75rem;
+        padding: 15px;
+    }
+}
