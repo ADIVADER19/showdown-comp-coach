@@ -1,0 +1,5 @@
+flask
+google-generativeai
+nest_asyncio
+python-dotenv
+requests

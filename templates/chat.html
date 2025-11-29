@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="app-container">
+    <div class="chat-header">
+        <div style="display: flex; align-items: center;">
+            <span class="status-dot"></span>
+            <h2 style="margin: 0; font-size: 1.2rem;">Rotom-Coach v2.0</h2>
+        </div>
+        <span style="background: #555; padding: 5px 10px; border-radius: 15px; font-size: 0.8rem;">
+            {{ user.knowledge_level }} Mode
+        </span>
+    </div>
+
+    <div id="chat-box">
+        <div class="message bot-msg">
+            <strong>Rotom:</strong> Welcome back, {{ user.username }}! Bzzzt! ⚡
+            <br>Which <strong>Format</strong> and <strong>Pokemon</strong> are we analyzing today?
+        </div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="user-input" placeholder="e.g., 'Gen 9 OU Iron Valiant'" onkeypress="handleEnter(event)">
+        <button class="send-btn" onclick="sendMessage()">SEND</button>
+    </div>
+</div>
+
+<script>
+    const chatBox = document.getElementById('chat-box');
+
+    function handleEnter(e) {
+        if (e.key === 'Enter') sendMessage();
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('user-input');
+        const msg = input.value.trim();
+        if (!msg) return;
+
+        appendMessage('You', msg, 'user-msg');
+        input.value = '';
+        
+        // 1. Create the loading message
+        const loadingId = appendMessage('Rotom', 'Calculating...', 'bot-msg');
+
+        try {
+            const res = await fetch('/chat', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ message: msg })
+            });
+            const data = await res.json();
+            
+            // 2. Remove the loading message SAFELY
+            const loader = document.getElementById(loadingId);
+            if (loader) loader.remove();
+            
+            // 3. Render response
+            if (data.error) appendMessage('System', 'Error: ' + data.error, 'bot-msg');
+            else appendMessage('Rotom', data.response, 'bot-msg');
+
+        } catch (e) {
+            console.error(e); 
+            
+            // 4. Handle errors safely 
+            const loader = document.getElementById(loadingId);
+            if (loader) {
+                loader.innerText = "Error: " + e.message;
+            } else {
+                appendMessage('System', "Error: " + e.message, 'bot-msg');
+            }
+        }
+    }
+
+    function appendMessage(sender, text, className) {
+        const div = document.createElement('div');
+        div.className = `message ${className}`;
+        div.id = 'msg-' + Date.now(); 
+        
+        if (className === 'bot-msg') {
+            // Check if marked is loaded; if not, fallback to plain text
+            if (typeof marked !== 'undefined') {
+                div.innerHTML = `<strong>${sender}:</strong><br>` + marked.parse(text);
+            } else {
+                div.innerHTML = `<strong>${sender}:</strong><br>` + text;
+            }
+
+            // Check for code blocks to add Save Button
+            if (/```[\s\S]*```/.test(text)) {
+                const saveBtn = document.createElement('button');
+                saveBtn.innerText = "💾 Save Team to Profile";
+                saveBtn.className = "save-team-btn";
+                saveBtn.onclick = () => saveTeamToProfile(text);
+                div.appendChild(saveBtn);
+            }
+        } else {
+            div.innerText = text;
+        }
+        
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        return div.id;
+    }
+
+    async function saveTeamToProfile(fullText) {
+        const matches = fullText.match(/```([\s\S]*?)```/);
+        if (!matches || !matches[1]) {
+            alert("No valid team data found.");
+            return;
+        }
+
+        const teamData = matches[1].trim();
+        const title = prompt("Enter a name for this team:", "New Team");
+        if (!title) return;
+        const format = prompt("Enter the Format (e.g., Gen 9 OU):", "Gen 9 OU");
+        if (!format) return;
+
+        try {
+            const res = await fetch('/save_team', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ team_text: teamData, title: title, format: format })
+            });
+            const data = await res.json();
+            if (data.status === 'success') alert("Team saved to your Trainer Card!");
+        } catch (e) {
+            alert("Failed to save team.");
+        }
+    }
+</script>
+{% endblock %}
